@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' gap:; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+
+    <title>React phonegap</title>
+</head>
+
+<body>
+    <div class="app">
+        <h1>Tic Tac Toe</h1>
+    </div>
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+    <script type="text/babel">
+
+    function Square(props) {
+      return (
+        <button className="square" onClick={props.onClick}>
+          {props.value}
+        </button>
+      );
+    }
+
+    class Board extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          squares: Array(9).fill(null),
+          xIsNext: true,
+        };
+      }
+
+      handleClick(i) {
+        const squares = this.state.squares.slice();
+        if (calculateWinner(squares) || squares[i]) {
+          return;
+        }
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({
+          squares: squares,
+          xIsNext: !this.state.xIsNext,
+        });
+      }
+
+      renderSquare(i) {
+        return (
+          <Square
+            value={this.state.squares[i]}
+            onClick={() => this.handleClick(i)}
+          />
+        );
+      }
+
+      render() {
+        const winner = calculateWinner(this.state.squares);
+        let status;
+        if (winner) {
+          status = 'Winner: ' + winner;
+        } else {
+          status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+
+        return (
+          <div>
+            <div className="status">{status}</div>
+            <div className="board-row">
+              {this.renderSquare(0)}
+              {this.renderSquare(1)}
+              {this.renderSquare(2)}
+            </div>
+            <div className="board-row">
+              {this.renderSquare(3)}
+              {this.renderSquare(4)}
+              {this.renderSquare(5)}
+            </div>
+            <div className="board-row">
+              {this.renderSquare(6)}
+              {this.renderSquare(7)}
+              {this.renderSquare(8)}
+            </div>
+          </div>
+        );
+      }
+    }
+
+    class Game extends React.Component {
+      render() {
+        return (
+          <div className="game">
+            <div className="game-board">
+              <Board />
+            </div>
+            <div className="game-info">
+              <div>{/* status */}</div>
+              <ol>{/* TODO */}</ol>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    // ========================================
+
+    ReactDOM.render(
+      <Game />,
+      document.getElementById('root')
+    );
+
+    function calculateWinner(squares) {
+      const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+      for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+          return squares[a];
+        }
+      }
+      return null;
+    }
+
+    </script>
+</body>
+
+</html>
